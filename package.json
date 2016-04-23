@@ -26,5 +26,8 @@
   "homepage": "https://github.com/rdegges/dbnow-api#readme",
   "dependencies": {
     "express": "^4.13.4"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5"
   }
 }
