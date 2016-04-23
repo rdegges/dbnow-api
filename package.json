@@ -1,0 +1,27 @@
+{
+  "name": "dbnow-api",
+  "version": "1.0.0",
+  "description": "Ephemeral databases on demand!",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rdegges/dbnow-api.git"
+  },
+  "keywords": [
+    "db",
+    "database",
+    "ephemeral",
+    "service",
+    "api",
+    "free"
+  ],
+  "author": "Randall Degges",
+  "license": "Unlicense",
+  "bugs": {
+    "url": "https://github.com/rdegges/dbnow-api/issues"
+  },
+  "homepage": "https://github.com/rdegges/dbnow-api#readme"
+}
