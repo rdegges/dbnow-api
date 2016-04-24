@@ -25,7 +25,9 @@
   },
   "homepage": "https://github.com/rdegges/dbnow-api#readme",
   "dependencies": {
-    "express": "^4.13.4"
+    "async": "^2.0.0-rc.3",
+    "express": "^4.13.4",
+    "heroku-client": "^2.4.3"
   },
   "devDependencies": {
     "mocha": "^2.4.5"
