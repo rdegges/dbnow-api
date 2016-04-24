@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+'use strict';
+
+let Heroku = require('heroku-client');
+let settings = require('../lib/settings');
+
+let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
+
+function createApps() {
+  for (let i = 0; i < settings.AVAILABLE_REGIONS.length; i++) {
+    for (let j = 0; j < settings.MAX_APPS / settings.AVAILABLE_REGIONS.length; j++) {
+      heroku.apps().create({ region: settings.AVAILABLE_REGIONS[i] }, (err, app) => {
+        if (err) {
+          throw new Error('Could not create Heroku app: ' + err);
+        }
+
+        console.log('Created new Heroku app:', app.name, 'in the', settings.AVAILABLE_REGIONS[i], 'region.');
+      });
+    }
+  }
+}
+
+createApps();
