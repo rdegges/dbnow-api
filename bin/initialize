@@ -2,6 +2,7 @@
 'use strict';
 
 let Heroku = require('heroku-client');
+let db = require('../lib/db');
 let settings = require('../lib/settings');
 
 let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
@@ -20,4 +21,11 @@ function createApps() {
   }
 }
 
-createApps();
+db.createTables(function(err) {
+  if (err) {
+    throw err;
+  }
+
+  console.log('Successfully created database tables.');
+  createApps();
+});
