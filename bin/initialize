@@ -8,40 +8,35 @@ let settings = require('../lib/settings');
 
 let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
 
-function createApps() {
-  async.each(settings.AVAILABLE_REGIONS, function(region, callback) {
+function createApps(callback) {
+  async.each(settings.AVAILABLE_REGIONS, function(region, cb) {
     let count = 0;
 
     async.whilst(
       function() {
         return count < settings.MAX_APPS / settings.AVAILABLE_REGIONS.length;
       },
-      function(cb) {
+      function(c) {
         heroku.apps().create({ region: region }, (err, app) => {
           if (err) {
-            return cb(new Error('Could not create Heroku app: ' + err));
+            return c(new Error('Could not create Heroku app: ' + err));
           }
 
           count++;
           console.log('Created new Heroku app:', app.name, 'in the', region, 'region.');
-          cb();
+          c();
         });
       },
       function(err) {
         if (err) {
-          return callback(err);
+          return cb(err);
         }
 
-        callback();
+        cb();
       }
     );
   }, function(err) {
-    if (err) {
-      throw err;
-    }
-
-    console.log('Successfully created all Heroku applications.');
-    return;
+    callback(err);
   });
 }
 
@@ -51,5 +46,13 @@ db.createTables(function(err) {
   }
 
   console.log('Successfully created database tables.');
-  createApps();
+
+  createApps(err => {
+    if (err) {
+      throw err;
+    }
+
+    console.log('Successfully created all Heroku applications.');
+    process.exit();
+  });
 });

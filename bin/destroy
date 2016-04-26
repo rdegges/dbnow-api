@@ -3,27 +3,45 @@
 
 let Heroku = require('heroku-client');
 let async = require('async');
+let db = require('../lib/db');
 let settings = require('../lib/settings');
 
 let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
 
-function destroyApps() {
+function destroyApps(callback) {
   heroku.apps().list((err, apps) => {
     if (err) {
-      throw new Error('Could not fetch list of Heroku apps: ' + err);
+      return callback(new Error('Could not fetch list of Heroku apps: ' + err));
     }
 
-    async.each(apps, (app, callback) => {
+    async.each(apps, (app, cb) => {
       heroku.apps(app.id).delete((err, app) => {
         if (err) {
-          throw new Error('Could not delete Heroku app: ' + err);
+          return cb(new Error('Could not delete Heroku app: ' + err));
         }
 
         console.log('Deleted Heroku app:', app.name);
-        callback();
+        cb();
       });
+    }, (err) => {
+      callback(err);
     });
   });
 }
 
-destroyApps();
+db.destroyTables(function(err) {
+  if (err) {
+    throw err;
+  }
+
+  console.log('Successfully destroyed database tables.');
+
+  destroyApps(function(err) {
+    if (err) {
+      throw err;
+    }
+
+    console.log('Successfully destroyed Heroku apps.');
+    process.exit();
+  });
+});
