@@ -2,23 +2,47 @@
 'use strict';
 
 let Heroku = require('heroku-client');
+let async = require('async');
 let db = require('../lib/db');
 let settings = require('../lib/settings');
 
 let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
 
 function createApps() {
-  for (let i = 0; i < settings.AVAILABLE_REGIONS.length; i++) {
-    for (let j = 0; j < settings.MAX_APPS / settings.AVAILABLE_REGIONS.length; j++) {
-      heroku.apps().create({ region: settings.AVAILABLE_REGIONS[i] }, (err, app) => {
+  async.each(settings.AVAILABLE_REGIONS, function(region, callback) {
+    let count = 0;
+
+    async.whilst(
+      function() {
+        return count < settings.MAX_APPS / settings.AVAILABLE_REGIONS.length;
+      },
+      function(cb) {
+        heroku.apps().create({ region: region }, (err, app) => {
+          if (err) {
+            return cb(new Error('Could not create Heroku app: ' + err));
+          }
+
+          count++;
+          console.log('Created new Heroku app:', app.name, 'in the', region, 'region.');
+          cb();
+        });
+      },
+      function(err) {
         if (err) {
-          throw new Error('Could not create Heroku app: ' + err);
+          return callback(err);
         }
 
-        console.log('Created new Heroku app:', app.name, 'in the', settings.AVAILABLE_REGIONS[i], 'region.');
-      });
+        callback();
+      }
+    );
+  }, function(err) {
+    if (err) {
+      throw err;
     }
-  }
+
+    console.log('Successfully created all Heroku applications.');
+    return;
+  });
 }
 
 db.createTables(function(err) {
