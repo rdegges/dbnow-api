@@ -1,9 +1,12 @@
 'use strict';
 
+let Heroku = require('heroku-client');
 let express = require('express');
+let massive = require('massive');
 let settings = require('./lib/settings');
 
 let app = express();
+let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
 
 app.get('/', function(req, res, next) {
   let type = req.query.type;

@@ -10,31 +10,23 @@ let heroku = new Heroku({ token: settings.HEROKU_API_KEY });
 
 function createApps(callback) {
   async.each(settings.AVAILABLE_REGIONS, function(region, cb) {
-    let count = 0;
-
-    async.whilst(
-      function() {
-        return count < settings.MAX_APPS / settings.AVAILABLE_REGIONS.length;
-      },
-      function(c) {
-        heroku.apps().create({ region: region }, (err, app) => {
-          if (err) {
-            return c(new Error('Could not create Heroku app: ' + err));
-          }
-
-          count++;
-          console.log('Created new Heroku app:', app.name, 'in the', region, 'region.');
-          c();
-        });
-      },
-      function(err) {
+    async.times(settings.MAX_APPS / settings.AVAILABLE_REGIONS.length, (n, next) => {
+      heroku.apps().create({ region: region }, (err, app) => {
         if (err) {
-          return cb(err);
+          return next(new Error('Could not create Heroku app: ' + err));
         }
 
-        cb();
+        console.log('Created new Heroku app:', app.name, 'in the', region, 'region.');
+        next();
+      });
+
+    }, function(err) {
+      if (err) {
+        return cb(err);
       }
-    );
+
+      cb();
+    });
   }, function(err) {
     callback(err);
   });
